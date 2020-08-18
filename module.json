@@ -1,0 +1,13 @@
+{
+    "disableAutoUpdate": false,
+    "disabled": false,
+    "name": "anti-bodyblock",
+    "author": "Fruit",
+    "description": "Removes allies bodyblock in dungeons.",
+    "version": "1.0",
+    "servers": ["https://raw.githubusercontent.com/WithoutLogic/Anti-Bodyblock/master/"],
+    "options": {
+        "niceName": "Anti Bodyblock",
+        "guiName": "Anti Bodyblock"
+    }
+}

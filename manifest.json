@@ -1,9 +1,6 @@
 {
     "files": {
-        "index.js": "ceeb57db895ee1e95032ac09ec7ac00ea3e50d1bf23b0d9dea418754a6575338",
+        "index.js": "b4f7c0445b5c2d2434c40ad97ebb75fcbcb424c91a9b87f53b8998cce8b39c35",
         "module.json": "1cabf7463bcd0dc025005f2cc93847ecf05462ff654fe114be87bf7e77e26a91"
-    },
-    "defs": {
-        "S_PARTY_INFO": 1
     }
 }

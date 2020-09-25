@@ -8,8 +8,12 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 		if (!Object.keys(partyMemberList).length) return;
 		if (!partyMembers.length) return;
 		for (let i = 0; i < partyMembers.length; i++) {
-			if (!partyMembers[i].online) continue;
-			if (!partyMembers[i].gameId) continue;
+			if (!partyMembers[i].online) {
+				continue;
+			}
+			if (!partyMembers[i].gameId) {
+				continue;
+			}
 			mod.toClient('S_PARTY_INFO', 1, {
 				"leader": partyMembers[i].gameId,
 				"unk1": partyMemberList.unk2,
@@ -27,7 +31,7 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 				partyMembers.splice(i, 1);
 			}
 		}
-	}
+	};
 
 	mod.command.add('abb', () => {
 		enabled = !enabled;
@@ -36,7 +40,7 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 		} else {
 			interval = mod.setInterval(removeBodyBlock, 5000);
 		}
-		mod.command.message("Anti-bodyblock enabled: " + enabled);
+		mod.command.message(`Anti-bodyblock is ${(enabled) ? "enabled." : "disabled."}`);
 	});
 
 	mod.hook('S_LOGIN', 14, event => {
@@ -45,8 +49,10 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 	});
 
 	mod.hook('S_SPAWN_USER', 15, event => {
-		if (!Object.keys(partyMemberList).length) return; 	//I'm in party?
-		for (let i = 0; i < partyMembers.length; i++) {		//Fix gameId = 0n
+		if (!Object.keys(partyMemberList).length) {
+			return; 
+		}
+		for (let i = 0; i < partyMembers.length; i++) {
 			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
 				partyMembers[i].gameId = event.gameId;
 				partyMembers[i].online = true;
@@ -56,6 +62,14 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 
 	mod.hook('S_LEAVE_PARTY_MEMBER', 2, removeUser);
 	mod.hook('S_BAN_PARTY_MEMBER', 1, removeUser);
+	mod.hook('S_LOGOUT_PARTY_MEMBER', 1, event => {
+		if (!partyMembers.length) return;
+		for (let i = 0; i < partyMembers.length; i++) {
+			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
+				partyMembers[i].online = false;
+			}
+		}
+	});
 
 	mod.hook('S_LEAVE_PARTY', 'event', () => {
 		if (interval) mod.clearInterval(interval);
@@ -87,6 +101,11 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 					});
 				}
 			}
+		}
+		if (enabled) {
+			if (!interval) interval = mod.setInterval(removeBodyBlock, 5000);
+		} else {
+			if (interval) mod.clearInterval(interval);
 		}
 	});
 };

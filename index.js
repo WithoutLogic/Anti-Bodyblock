@@ -33,12 +33,12 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 		}
 	};
 
-	mod.command.add('abb', () => {
+	mod.command.add('bb', () => {
 		enabled = !enabled;
 		if (!enabled) {
-			if (interval) mod.clearInterval(interval);
+			if (interval) mod.clearInterval(interval); 
 		} else {
-			interval = mod.setInterval(removeBodyBlock, 5000);
+			if (!interval) interval = mod.setInterval(removeBodyBlock, 5000); 
 		}
 		mod.command.message(`Anti-bodyblock is ${(enabled) ? "enabled." : "disabled."}`);
 	});
@@ -102,10 +102,10 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 				}
 			}
 		}
-		if (enabled) {
-			if (!interval) interval = mod.setInterval(removeBodyBlock, 5000);
-		} else {
+		if (!enabled) { 
 			if (interval) mod.clearInterval(interval);
+		} else {
+			if (!interval) interval = mod.setInterval(removeBodyBlock, 5000);
 		}
 	});
 };

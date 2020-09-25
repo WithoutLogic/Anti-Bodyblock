@@ -5,9 +5,9 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 	let enabled = true;
 
 	const removeBodyBlock = () => {
+		if (!Object.keys(partyMemberList).length) {	return;	}
+		if (!partyMembers.length) {	return;	}
 		if (!enabled) { return;	}
-		if (!Object.keys(partyMemberList).length) { return; }
-		if (!partyMembers.length) { return; }
 		for (let i = 0; i < partyMembers.length; i++) {
 			if (!partyMembers[i].online) { continue; }
 			if (!partyMembers[i].gameId) { continue; }
@@ -36,11 +36,11 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 	});
 
 	mod.hook('S_LOGIN', 14, event => {
-		if (!interval) { interval = mod.setInterval(removeBodyBlock, 5000); }
+		interval = mod.setInterval(removeBodyBlock, 5000);
 	});
 
 	mod.hook('S_SPAWN_USER', 15, event => {
-		if (!Object.keys(partyMemberList).length) { return; }
+		if (!Object.keys(partyMemberList).length) {	return; }
 		for (let i = 0; i < partyMembers.length; i++) {
 			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
 				partyMembers[i].gameId = event.gameId;

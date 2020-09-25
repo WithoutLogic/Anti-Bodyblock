@@ -5,15 +5,12 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 	let enabled = true;
 
 	const removeBodyBlock = () => {
-		if (!Object.keys(partyMemberList).length) return;
-		if (!partyMembers.length) return;
+		if (!enabled) { return;	}
+		if (!Object.keys(partyMemberList).length) { return; }
+		if (!partyMembers.length) { return; }
 		for (let i = 0; i < partyMembers.length; i++) {
-			if (!partyMembers[i].online) {
-				continue;
-			}
-			if (!partyMembers[i].gameId) {
-				continue;
-			}
+			if (!partyMembers[i].online) { continue; }
+			if (!partyMembers[i].gameId) { continue; }
 			mod.toClient('S_PARTY_INFO', 1, {
 				"leader": partyMembers[i].gameId,
 				"unk1": partyMemberList.unk2,
@@ -25,7 +22,7 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 	};
 
 	const removeUser = (event) => {
-		if (!partyMembers.length) return;
+		if (!partyMembers.length) { return; }
 		for (let i = 0; i < partyMembers.length; i++) {
 			if (partyMembers[i].serverId === event.serverId && partyMembers[i].playerId === event.playerId) {
 				partyMembers.splice(i, 1);
@@ -35,23 +32,15 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 
 	mod.command.add('bb', () => {
 		enabled = !enabled;
-		if (!enabled) {
-			if (interval) mod.clearInterval(interval); 
-		} else {
-			if (!interval) interval = mod.setInterval(removeBodyBlock, 5000); 
-		}
 		mod.command.message(`Anti-bodyblock is ${(enabled) ? "enabled." : "disabled."}`);
 	});
 
 	mod.hook('S_LOGIN', 14, event => {
-		if (interval) mod.clearInterval(interval);
-		interval = mod.setInterval(removeBodyBlock, 5000);
+		if (!interval) { interval = mod.setInterval(removeBodyBlock, 5000); }
 	});
 
 	mod.hook('S_SPAWN_USER', 15, event => {
-		if (!Object.keys(partyMemberList).length) {
-			return; 
-		}
+		if (!Object.keys(partyMemberList).length) { return; }
 		for (let i = 0; i < partyMembers.length; i++) {
 			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
 				partyMembers[i].gameId = event.gameId;
@@ -63,7 +52,7 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 	mod.hook('S_LEAVE_PARTY_MEMBER', 2, removeUser);
 	mod.hook('S_BAN_PARTY_MEMBER', 1, removeUser);
 	mod.hook('S_LOGOUT_PARTY_MEMBER', 1, event => {
-		if (!partyMembers.length) return;
+		if (!partyMembers.length) { return; }
 		for (let i = 0; i < partyMembers.length; i++) {
 			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
 				partyMembers[i].online = false;
@@ -72,7 +61,6 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 	});
 
 	mod.hook('S_LEAVE_PARTY', 'event', () => {
-		if (interval) mod.clearInterval(interval);
 		partyMemberList = {};
 		partyMembers = [];
 	});
@@ -101,11 +89,6 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 					});
 				}
 			}
-		}
-		if (!enabled) { 
-			if (interval) mod.clearInterval(interval);
-		} else {
-			if (!interval) interval = mod.setInterval(removeBodyBlock, 5000);
 		}
 	});
 };

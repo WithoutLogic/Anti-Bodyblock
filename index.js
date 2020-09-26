@@ -5,9 +5,9 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 	let enabled = true;
 
 	const removeBodyBlock = () => {
+		if (!enabled) { return; }
 		if (!Object.keys(partyMemberList).length) { return; }
 		if (!partyMembers.length) { return; }
-		if (!enabled) { return; }
 		for (let i = 0; i < partyMembers.length; i++) {
 			if (!partyMembers[i].online) { continue; }
 			if (!partyMembers[i].gameId) { continue; }
@@ -21,12 +21,13 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 		}
 	};
 
-	const hasMember = (sId, pId) => { return partyMembers.findIndex(x => x.serverId === sId && x.playerId === pId); }
-
 	const removeUser = (event) => {
 		if (!partyMembers.length) { return; }
-		let idx = hasMember(event.serverId, event.playerId);
-		if (idx > -1) { partyMembers.splice(idx, 1); }
+		for (let i = 0; i < partyMembers.length; i++) {
+			if (partyMembers[i].serverId === event.serverId && partyMembers[i].playerId === event.playerId) {
+				partyMembers.splice(i, 1);
+			}
+		}
 	};
 
 	mod.command.add('bb', () => {
@@ -40,10 +41,11 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 
 	mod.hook('S_SPAWN_USER', 15, event => {
 		if (!Object.keys(partyMemberList).length) {	return; }
-		let idx = hasMember(event.serverId, event.playerId);
-		if (idx > -1) {
-			partyMembers[idx].gameId = event.gameId;
-			partyMembers[idx].online = true;
+		for (let i = 0; i < partyMembers.length; i++) {
+			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
+				partyMembers[i].gameId = event.gameId;
+				partyMembers[i].online = true;
+			}
 		}
 	});
 
@@ -51,8 +53,11 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 	mod.hook('S_BAN_PARTY_MEMBER', 1, removeUser);
 	mod.hook('S_LOGOUT_PARTY_MEMBER', 1, event => {
 		if (!partyMembers.length) { return; }
-		let idx = hasMember(event.serverId, event.playerId);
-		if (idx > -1) { partyMembers[idx].online = false; }
+		for (let i = 0; i < partyMembers.length; i++) {
+			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
+				partyMembers[i].online = false;
+			}
+		}
 	});
 
 	mod.hook('S_LEAVE_PARTY', 'event', () => {
@@ -61,7 +66,7 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 	});
 
 	mod.hook('S_PARTY_MEMBER_LIST', 7, event => {
-		if (event.raid) { return; }
+		// if (event.raid) { return; }
 		Object.assign(partyMemberList, event);
 		let n = Object.keys(partyMemberList.members).length;
 		for (let i = 0; i < n; i++) {
@@ -73,9 +78,9 @@ module.exports.NetworkMod = function antiBodyBlock(mod) {
 					"online": partyMemberList.members[i].online
 				});
 			} else {
-				let idx = hasMember(partyMemberList.members[i].serverId, partyMemberList.members[i].playerId);
-				if (idx > -1) { 
-					continue; 
+				let idx = partyMembers.findIndex(x => x.playerId === partyMemberList.members[i].playerId && x.serverId === partyMemberList.members[i].serverId);
+				if (idx > -1) {
+					continue;
 				} else {
 					partyMembers.push({
 						"gameId": partyMemberList.members[i].gameId,

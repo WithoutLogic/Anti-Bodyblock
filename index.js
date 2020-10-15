@@ -1,127 +1,96 @@
 module.exports = function antiBodyBlock(mod) {
-	//mod.game.initialize("me");
-	//mod.game.initialize("party");
-	
-	//const { command } = mod.require;
-	
-	let partyMemberList = Object.create(null);
-	let partyMembers = [];
-	let timerLenght = 5000;
-	let timerInterval = null;
-	let enabled = true;
-	let myGameId = 0, myPlayerId = 0, myServerId = 0;
-	
-	const removeBodyBlock = () => {
-		if (!enabled) { return; }
-		if (!Object.keys(partyMemberList).length) { return; }
+    let timerInterval = null;
+    let partyMembers = [];
+    let unk1 = 0, unk2 = 0, unk3 = 0;
+
+    mod.game.initialize("me");
+    mod.game.initialize("party");
+
+	const removeUser = (e) => {
 		if (!partyMembers.length) { return; }
-		if (partyMemberList.raid) { return; }
-		for (let i = 0; i < partyMembers.length; i++) {
-			if (!partyMembers[i].online) { continue; }
-			if (!partyMembers[i].gameId) {
-				if (partyMembers[i].playerId === myPlayerId && partyMembers[i].serverId === myServerId) {
-					partyMembers[i].gameId = myGameId;
-				} else { 
-					continue; 
-				}
-			}
-			mod.send('S_PARTY_INFO', 1, {
-				"leader": partyMembers[i].gameId,
-				"unk1": partyMemberList.unk2,
-				"unk2": partyMemberList.unk3,
-				"unk3": partyMemberList.unk4,
-				"unk4": 1
-			});
-		}
-	};
+		for (let i = 0, n = partyMembers.length; i < n; i++) {
+			if (partyMembers[i].serverId === e.serverId && partyMembers[i].playerId === e.playerId) {
+                partyMembers.splice(i, 1);
+                break;
+            }
+        }
+    };
+    
+    mod.game.party.on("leave", () => {
+        partyMembers = [];
+        unk1 = 0, unk2 = 0, unk3 = 0;
+    });
 
-	const removeUser = (event) => {
-		if (!partyMembers.length) { return; }
-		for (let i = 0; i < partyMembers.length; i++) {
-			if (partyMembers[i].serverId === event.serverId && partyMembers[i].playerId === event.playerId) {
-				partyMembers.splice(i, 1);
-			}
-		}
-	};
+    mod.game.party.on('member_kick', removeUser);
+    mod.game.party.on('member_leave', removeUser);
 
-	mod.command.add('bb', () => {
-		enabled = !enabled;
-		command.message(`Anti-bodyblock is ${(enabled) ? "enabled." : "disabled."}`);
-	});
+    const removeBodyBlock = () => {
+        if (!partyMembers.length) { return; }
+        if (mod.game.me.inDungeon && mod.game.party.inParty) {
+            partyMembers.forEach(mem => {
+                if (mem.online) {    
+                    if (mem.gameId == 0) { return; }                   
+                    mod.send('S_PARTY_INFO', 1, {
+                        "leader": mem.gameId,
+                        "unk1": unk1,
+                        "unk2": unk2,
+                        "unk3": unk3,
+                        "unk4": 1
+                    });
+                }
+            });
+        }
+    }
 
-	/*
-	mod.game.on("leave_game", () => {
-		//mod.clearInterval(timerInterval);
-	});
-	mod.game.party.on('leave', () => {
-		partyMemberList = {};
-		partyMembers = [];
-	})
-	*/
-	
 	mod.hook('S_LOGIN', 14, event => {
-		myGameId = event.gameId;
-		myPlayerId = event.playerId;
-		myServerId = event.serverId;
-		timerInterval = mod.setInterval(removeBodyBlock, timerLenght);
-	});
+        partyMembers = [];
+        unk1 = 0, unk2 = 0, unk3 = 0;
+		timerInterval = mod.setInterval(removeBodyBlock, 5000);
+    });
+    
+    mod.hook('S_PARTY_MEMBER_LIST', 7, event => {
+        if (event.raid) { return; }
+        let idx = -1, gId = -1n;
+        unk1 = event.unk2;
+        unk2 = event.unk3;
+        unk3 = event.unk4;
+        event.members.forEach(mem => {
+            idx = partyMembers.findIndex(x => x.playerId === mem.playerId && x.serverId ===  mem.serverId);
+            if (idx === -1) {
+                gId = mem.gameId;
+                if (gId === 0n) {
+                    if (mod.game.me.playerId === mem.playerId && mod.game.me.serverId ===  mem.serverId) {
+                        gId = mod.game.me.gameId;
+                    }
+                }
+                partyMembers.push({
+                    "gameId": gId,
+                    "playerId": mem.playerId,
+                    "serverId": mem.serverId,
+                    "online": mem.online
+                });
+            }
+        });
+    });
 
-	mod.hook('S_SPAWN_USER', 15, event => {
-		if (!Object.keys(partyMemberList).length) { return; }
-		for (let i = 0; i < partyMembers.length; i++) {
+	mod.hook('S_SPAWN_USER', mod.majorPatchVersion >= 99 ? 16 : 15, event => {
+        let n = partyMembers.length;
+		if (!n) { return; }
+		for (let i = 0; i < n; i++) {
 			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
 				partyMembers[i].gameId = event.gameId;
 				partyMembers[i].online = true;
 			}
 		}
-	});
-
-	mod.hook('S_LEAVE_PARTY_MEMBER', 2, removeUser);
-	mod.hook('S_BAN_PARTY_MEMBER', 1, removeUser);
-	mod.hook('S_LOGOUT_PARTY_MEMBER', 1, event => {
-		if (!partyMembers.length) { return; }
-		for (let i = 0; i < partyMembers.length; i++) {
+    });
+    
+    mod.hook('S_LOGOUT_PARTY_MEMBER', 1, event => {
+        let n = partyMembers.length;
+		if (!n) { return; }
+		for (let i = 0; i < n; i++) {
 			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
 				partyMembers[i].online = false;
 			}
 		}
 	});
-
-	mod.hook('S_LEAVE_PARTY', 'event', () => { //'raw'
-		partyMemberList = {};
-		partyMembers = [];
-	});
-		
-	mod.hook('S_PARTY_MEMBER_LIST', 7, event => {
-		Object.assign(partyMemberList, event);
-		let n = Object.keys(partyMemberList.members).length;
-		for (let i = 0; i < n; i++) {
-			if (!partyMembers.length) {
-				partyMembers.push({
-					"gameId": partyMemberList.members[i].gameId,
-					"playerId": partyMemberList.members[i].playerId,
-					"serverId": partyMemberList.members[i].serverId,
-					"online": partyMemberList.members[i].online
-				});
-			} else {
-				let idx = partyMembers.findIndex(x => x.playerId === partyMemberList.members[i].playerId && x.serverId === partyMemberList.members[i].serverId);
-				if (idx > -1) {
-					continue;
-				} else {
-					partyMembers.push({
-						"gameId": partyMemberList.members[i].gameId,
-						"playerId": partyMemberList.members[i].playerId,
-						"serverId": partyMemberList.members[i].serverId,
-						"online": partyMemberList.members[i].online
-					});
-				}
-			}
-		}
-	});
-	
-	/*
-	this.destructor = () => {
-		//
-	};
-	*/
-};
+}

@@ -1,7 +1,7 @@
 module.exports = function antiBodyBlock(mod) {
     let timerInterval = null;
     let partyMembers = [], 
-    unk1 = 0, unk2 = 0, unk3 = 0;
+        unk1 = 0, unk2 = 0, unk3 = 0;
 
     mod.game.initialize("me");
     mod.game.initialize("party");

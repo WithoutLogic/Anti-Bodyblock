@@ -8,12 +8,8 @@ module.exports = function antiBodyBlock(mod) {
 
     const removeUser = (e) => {
         if (!partyMembers.length) { return; }
-        for (let i = 0, n = partyMembers.length; i < n; i++) {
-            if (partyMembers[i].serverId === e.serverId && partyMembers[i].playerId === e.playerId) {
-                partyMembers.splice(i, 1);
-                break;
-            }
-        }
+        let idx = partyMembers.findIndex(x => x.playerId === e.playerId && x.serverId ===  e.serverId);
+        if (idx > -1) { partyMembers.splice(idx, 1); }
     };
     
     mod.game.party.on("leave", () => {
@@ -40,7 +36,7 @@ module.exports = function antiBodyBlock(mod) {
                 }
             });
         }
-    }
+    };
 
     mod.hook('S_LOGIN', 14, event => {
         partyMembers = [];

@@ -6,10 +6,10 @@ module.exports = function antiBodyBlock(mod) {
     mod.game.initialize("me");
     mod.game.initialize("party");
 
-	const removeUser = (e) => {
-		if (!partyMembers.length) { return; }
-		for (let i = 0, n = partyMembers.length; i < n; i++) {
-			if (partyMembers[i].serverId === e.serverId && partyMembers[i].playerId === e.playerId) {
+    const removeUser = (e) => {
+        if (!partyMembers.length) { return; }
+        for (let i = 0, n = partyMembers.length; i < n; i++) {
+            if (partyMembers[i].serverId === e.serverId && partyMembers[i].playerId === e.playerId) {
                 partyMembers.splice(i, 1);
                 break;
             }
@@ -42,10 +42,10 @@ module.exports = function antiBodyBlock(mod) {
         }
     }
 
-	mod.hook('S_LOGIN', 14, event => {
+    mod.hook('S_LOGIN', 14, event => {
         partyMembers = [];
         unk1 = 0, unk2 = 0, unk3 = 0;
-		timerInterval = mod.setInterval(removeBodyBlock, 5000);
+        timerInterval = mod.setInterval(removeBodyBlock, 5000);
     });
     
     mod.hook('S_PARTY_MEMBER_LIST', 7, event => {
@@ -73,24 +73,24 @@ module.exports = function antiBodyBlock(mod) {
         });
     });
 
-	mod.hook('S_SPAWN_USER', mod.majorPatchVersion >= 99 ? 16 : 15, event => {
+    mod.hook('S_SPAWN_USER', mod.majorPatchVersion >= 99 ? 16 : 15, event => {
         let n = partyMembers.length;
 		if (!n) { return; }
 		for (let i = 0; i < n; i++) {
-			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
-				partyMembers[i].gameId = event.gameId;
-				partyMembers[i].online = true;
-			}
-		}
+            if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
+                partyMembers[i].gameId = event.gameId;
+                partyMembers[i].online = true;
+            }
+        }
     });
     
     mod.hook('S_LOGOUT_PARTY_MEMBER', 1, event => {
         let n = partyMembers.length;
-		if (!n) { return; }
-		for (let i = 0; i < n; i++) {
-			if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
-				partyMembers[i].online = false;
-			}
-		}
-	});
+        if (!n) { return; }
+        for (let i = 0; i < n; i++) {
+            if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
+                partyMembers[i].online = false;
+            }
+        }
+    });
 }

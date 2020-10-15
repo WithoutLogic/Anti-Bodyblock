@@ -1,7 +1,7 @@
 module.exports = function antiBodyBlock(mod) {
     let timerInterval = null;
-    let partyMembers = [],
-		unk1 = 0, unk2 = 0, unk3 = 0;
+    let partyMembers = [], 
+    unk1 = 0, unk2 = 0, unk3 = 0;
 
     mod.game.initialize("me");
     mod.game.initialize("party");
@@ -75,8 +75,8 @@ module.exports = function antiBodyBlock(mod) {
 
     mod.hook('S_SPAWN_USER', mod.majorPatchVersion >= 99 ? 16 : 15, event => {
         let n = partyMembers.length;
-		if (!n) { return; }
-		for (let i = 0; i < n; i++) {
+        if (!n) { return; }
+        for (let i = 0; i < n; i++) {
             if (partyMembers[i].playerId === event.playerId && partyMembers[i].serverId === event.serverId) {
                 partyMembers[i].gameId = event.gameId;
                 partyMembers[i].online = true;

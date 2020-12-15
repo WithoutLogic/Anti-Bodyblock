@@ -1,14 +1,7 @@
 {
     "files": {
         "README.md": "dd9d448f8ad38a41aa96c2fd349bbf144d4cc437e017fa54038b0bcfdd697eca",
-        "index.js": "dc34aae352c1ea8fed87ff244caf95f0bbaaf99eccce6be2632b37e39422891a",
+        "index.js": "e389d7d654bd6d4f2148bc2f091e659ec73c7d0d3c9aed5d6282a6d52a3a306a",
         "module.json": "1cabf7463bcd0dc025005f2cc93847ecf05462ff654fe114be87bf7e77e26a91"
-    },
-    "defs": {
-        "S_LOGIN": 14,
-        "S_LOGOUT_PARTY_MEMBER": 1,
-        "S_PARTY_INFO": 1,
-        "S_PARTY_MEMBER_LIST": 7,
-        "S_SPAWN_USER": 16
     }
 }

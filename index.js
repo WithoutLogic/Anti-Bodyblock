@@ -69,7 +69,7 @@ module.exports = function antiBodyBlock(mod) {
         });
     });
 
-    mod.hook('S_SPAWN_USER', 16, event => {
+    mod.hook('S_SPAWN_USER', 17, event => {
         let n = partyMembers.length;
         if (!n) { return; }
         for (let i = 0; i < n; i++) {

@@ -45,7 +45,7 @@ module.exports = function antiBodyBlock(mod) {
             unk3: unk3,
             unk4: 1,
           });*/
-		  mod.command('Due to recent update, abb is broken - use fps mode 3 instead and delete this mod');
+		  mod.command('Due to recent update, abb is broken - use fps mode 3 instead and delete or turn off this mod');
         }
       });
     }
